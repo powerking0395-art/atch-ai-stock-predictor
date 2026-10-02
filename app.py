@@ -1,3 +1,4 @@
+```python
 import gradio as gr
 import pandas as pd
 import numpy as np
@@ -6,7 +7,7 @@ import joblib
 
 
 # ==========================================
-# 1. 파일 불러오기
+# 1. 모델 및 데이터 불러오기
 # ==========================================
 
 direction_model = tf.keras.models.load_model(
@@ -29,7 +30,7 @@ data = pd.read_csv("ATCH_AI_final_dataset.csv")
 
 
 # ==========================================
-# 2. 모델에 사용하는 48개 변수
+# 2. 모델 입력에 사용하는 48개 변수
 # ==========================================
 
 features = [
@@ -92,28 +93,38 @@ def predict():
 
     try:
 
-        # 날짜순 정렬
+        # 날짜순으로 정렬
         data_sorted = data.copy()
 
         if "Date" in data_sorted.columns:
             data_sorted["Date"] = pd.to_datetime(
                 data_sorted["Date"]
             )
-            data_sorted = data_sorted.sort_values("Date")
 
-        # 마지막 데이터 사용
+            data_sorted = data_sorted.sort_values(
+                "Date"
+            ).reset_index(drop=True)
+
+        # 가장 최근 데이터 사용
         latest = data_sorted.iloc[-1:].copy()
 
-        # 필요한 변수 확인
+        # 필요한 변수 존재 여부 확인
         missing = [
-            col for col in features
+            col
+            for col in features
             if col not in latest.columns
         ]
 
         if missing:
-            return f"필요한 데이터가 없습니다: {missing}"
+            return (
+                "## 오류 발생\n\n"
+                "다음 입력 변수가 데이터에 없습니다:\n\n"
+                + "\n".join(
+                    f"- {col}" for col in missing
+                )
+            )
 
-        # 숫자로 변환
+        # 숫자형으로 변환
         X = latest[features].apply(
             pd.to_numeric,
             errors="coerce"
@@ -127,8 +138,11 @@ def predict():
             ].tolist()
 
             return (
+                "## 오류 발생\n\n"
                 "예측에 필요한 데이터에 결측치가 있습니다.\n\n"
-                + str(missing_values)
+                + "\n".join(
+                    f"- {col}" for col in missing_values
+                )
             )
 
         # ======================================
@@ -158,7 +172,7 @@ def predict():
         expected_return = float(expected_return)
 
         # ======================================
-        # 현재 주가
+        # 현재 종가
         # ======================================
 
         current_price = float(
@@ -166,29 +180,41 @@ def predict():
         )
 
         # ======================================
-        # 결과 표시
+        # 기준 날짜
         # ======================================
 
-        direction = (
-            "상승 가능성"
-            if probability >= 0.5
-            else "하락 가능성"
-        )
+        if "Date" in latest.columns:
+            date_text = str(
+                latest["Date"].iloc[0]
+            )[:10]
+        else:
+            date_text = "최근 데이터"
 
-        date_text = str(
-            latest["Date"].iloc[0]
-        )[:10] if "Date" in latest.columns else "최근 데이터"
+        # ======================================
+        # 상승/하락 판단
+        # ======================================
+
+        if probability >= 0.5:
+            direction = "상승 가능성"
+        else:
+            direction = "하락 가능성"
+
+        # ======================================
+        # 결과 출력
+        # ======================================
 
         result = f"""
-## ATCH AI 주가 예측 결과
+# ATCH AI Stock Predictor
 
-**기준 날짜:** {date_text}
+### 📅 기준 날짜
+**{date_text}**
 
-**최근 종가:** ${current_price:.2f}
+### 💰 최근 종가
+**${current_price:.2f}**
 
 ---
 
-### 상승/하락 예측
+## 📈 상승/하락 예측
 
 **상승 확률:** {probability * 100:.2f}%
 
@@ -196,14 +222,18 @@ def predict():
 
 ---
 
-### 다음날 수익률 예측
+## 📊 다음날 수익률 예측
 
 **예상 수익률:** {expected_return * 100:.2f}%
 
 ---
 
-※ 본 결과는 공개 데이터를 이용해 학습한 인공신경망의 예측값이며,
-실제 주가 변동을 보장하지 않습니다.
+### ⚠️ 안내
+
+본 결과는 공개 데이터를 이용하여 학습한
+인공신경망 모델의 예측값입니다.
+
+실제 주가 변동이나 미래 수익을 보장하지 않습니다.
 """
 
         return result
@@ -211,13 +241,13 @@ def predict():
     except Exception as e:
 
         return (
-            "예측 중 오류가 발생했습니다.\n\n"
-            + str(e)
+            "## 오류 발생\n\n"
+            f"`{str(e)}`"
         )
 
 
 # ==========================================
-# 4. Gradio 화면
+# 4. Gradio 인터페이스
 # ==========================================
 
 demo = gr.Interface(
@@ -226,15 +256,17 @@ demo = gr.Interface(
     outputs=gr.Markdown(),
     title="ATCH AI Stock Predictor",
     description=(
-        "공개 데이터를 이용한 인공신경망 기반 "
-        "AtlasClear Holdings(ATCH) 주가 예측 프로그램"
+        "공개 데이터를 이용한 "
+        "인공신경망 기반 AtlasClear Holdings(ATCH) "
+        "주가 예측 프로그램"
     ),
     theme=gr.themes.Soft()
 )
 
 
 # ==========================================
-# 5. 실행
+# 5. 프로그램 실행
 # ==========================================
 
 demo.launch()
+```
