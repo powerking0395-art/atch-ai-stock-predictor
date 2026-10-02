@@ -1,0 +1,10 @@
+gradio
+yfinance
+pandas
+numpy
+scikit-learn
+tensorflow
+joblib
+requests
+beautifulsoup4
+lxml
