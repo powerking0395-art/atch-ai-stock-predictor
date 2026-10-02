@@ -1,17 +1,688 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-    <title>ATCH AI 주가 예측</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ATCH AI Stock Predictor</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, "Noto Sans KR", sans-serif;
+    background: #f4f7fb;
+    color: #172033;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 40px 20px 60px;
+}
+
+/* HEADER */
+
+.header {
+    background: linear-gradient(135deg, #111c35, #243b70);
+    color: white;
+    border-radius: 24px;
+    padding: 40px;
+    margin-bottom: 25px;
+    box-shadow: 0 15px 40px rgba(20, 35, 70, 0.18);
+}
+
+.badge {
+    display: inline-block;
+    background: #4d6fe8;
+    padding: 7px 13px;
+    border-radius: 20px;
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 34px;
+}
+
+.header p {
+    margin-top: 12px;
+    opacity: 0.8;
+    line-height: 1.7;
+}
+
+/* CARDS */
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 25px;
+}
+
+.card {
+    background: white;
+    border-radius: 18px;
+    padding: 23px;
+    box-shadow: 0 7px 25px rgba(30, 50, 90, 0.07);
+}
+
+.label {
+    font-size: 13px;
+    color: #78849a;
+    margin-bottom: 10px;
+}
+
+.value {
+    font-size: 27px;
+    font-weight: bold;
+}
+
+.sub {
+    margin-top: 7px;
+    color: #8a94a6;
+    font-size: 13px;
+}
+
+/* SECTION */
+
+.section {
+    margin-top: 28px;
+    margin-bottom: 14px;
+    font-size: 21px;
+}
+
+/* PREDICTION */
+
+.prediction {
+    background: white;
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0 7px 25px rgba(30, 50, 90, 0.07);
+}
+
+.progress-background {
+    height: 22px;
+    background: #e8edf5;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 18px 0 10px;
+}
+
+.progress {
+    height: 100%;
+    width: 49.85%;
+    background: linear-gradient(90deg, #5474df, #718cf0);
+}
+
+.progress-text {
+    display: flex;
+    justify-content: space-between;
+    color: #7a8496;
+    font-size: 13px;
+}
+
+.result {
+    margin-top: 20px;
+    padding: 20px;
+    background: #fff4f4;
+    border: 1px solid #ffdada;
+    border-radius: 15px;
+}
+
+.result-title {
+    font-size: 21px;
+    font-weight: bold;
+}
+
+.result p {
+    color: #687386;
+    line-height: 1.7;
+}
+
+/* CHART */
+
+.chart {
+    background: white;
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0 7px 25px rgba(30, 50, 90, 0.07);
+}
+
+canvas {
+    width: 100% !important;
+    height: 330px !important;
+}
+
+/* TWO COLUMNS */
+
+.two-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 18px;
+}
+
+.info {
+    background: white;
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0 7px 25px rgba(30, 50, 90, 0.07);
+}
+
+.info h2 {
+    margin-top: 0;
+}
+
+.info p {
+    color: #626e82;
+    line-height: 1.9;
+}
+
+/* MODEL */
+
+.model {
+    margin-top: 18px;
+    background: white;
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0 7px 25px rgba(30, 50, 90, 0.07);
+}
+
+.model-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.model-box {
+    background: #f5f7fb;
+    padding: 20px;
+    border-radius: 14px;
+}
+
+.model-number {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 7px;
+}
+
+/* FOOTER */
+
+.footer {
+    text-align: center;
+    margin-top: 35px;
+    color: #8993a5;
+    font-size: 13px;
+}
+
+/* MOBILE */
+
+@media(max-width: 800px) {
+
+    .cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .two-column {
+        grid-template-columns: 1fr;
+    }
+
+    .model-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+@media(max-width: 500px) {
+
+    .container {
+        padding: 20px 12px 40px;
+    }
+
+    .header {
+        padding: 28px 22px;
+    }
+
+    .header h1 {
+        font-size: 27px;
+    }
+
+    .cards {
+        grid-template-columns: 1fr;
+    }
+
+    .model-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+</style>
 </head>
 
+
 <body>
-    <h1>ATCH AI 주가 예측 프로그램</h1>
 
-    <p>인공신경망을 이용한 주가 예측</p>
+<div class="container">
 
-    <h2>예측 결과</h2>
+    <!-- HEADER -->
 
-    <p>상승 확률: 49.85%</p>
-    <p>예상 수익률: -20.69%</p>
+    <div class="header">
+
+        <div class="badge">
+            AI STOCK PREDICTION
+        </div>
+
+        <h1>
+            ATCH AI 주가 예측 프로그램
+        </h1>
+
+        <p>
+            공개된 주가·거래량·기업공시·재무·공매도 데이터를
+            인공신경망(ANN)으로 분석하여 다음 거래일의
+            주가 방향과 예상 수익률을 예측합니다.
+        </p>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+
+    <div class="cards">
+
+        <div class="card">
+
+            <div class="label">
+                기준 날짜
+            </div>
+
+            <div class="value">
+                2026-10-01
+            </div>
+
+            <div class="sub">
+                최근 데이터 기준
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="label">
+                최근 종가
+            </div>
+
+            <div class="value">
+                $0.20
+            </div>
+
+            <div class="sub">
+                ATCH
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="label">
+                상승 확률
+            </div>
+
+            <div class="value">
+                49.85%
+            </div>
+
+            <div class="sub">
+                분류 ANN
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="label">
+                예상 수익률
+            </div>
+
+            <div class="value">
+                -20.69%
+            </div>
+
+            <div class="sub">
+                회귀 ANN
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- PREDICTION -->
+
+    <h2 class="section">
+        AI 예측 결과
+    </h2>
+
+    <div class="prediction">
+
+        <div class="label">
+            다음 거래일 상승 가능성
+        </div>
+
+        <div class="progress-background">
+
+            <div class="progress"></div>
+
+        </div>
+
+        <div class="progress-text">
+
+            <span>
+                하락 가능성
+            </span>
+
+            <span>
+                상승 가능성
+            </span>
+
+        </div>
+
+
+        <div class="result">
+
+            <div class="result-title">
+                📉 모델 판단: 하락 가능성
+            </div>
+
+            <p>
+                인공신경망 분류 모델의 상승 확률은
+                <strong>49.85%</strong>로 계산되었습니다.
+                회귀 모델에서는 다음 거래일 예상 수익률을
+                <strong>-20.69%</strong>로 예측했습니다.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- CHART -->
+
+    <h2 class="section">
+        최근 주가 추이
+    </h2>
+
+    <div class="chart">
+
+        <canvas id="stockChart"></canvas>
+
+    </div>
+
+
+    <!-- INFORMATION -->
+
+    <div class="two-column">
+
+        <div class="info">
+
+            <h2>
+                📊 사용 데이터
+            </h2>
+
+            <p>
+                • 주가(Open / High / Low / Close)<br>
+                • 거래량 및 거래량 변화<br>
+                • 이동평균(MA5 / MA20 / MA60)<br>
+                • RSI 및 변동성<br>
+                • SPY / QQQ 시장 지표<br>
+                • SEC 기업 공시<br>
+                • 기업 재무 데이터<br>
+                • 공매도 데이터<br>
+                • 실적 발표 관련 데이터
+            </p>
+
+        </div>
+
+
+        <div class="info">
+
+            <h2>
+                🧠 인공신경망 구조
+            </h2>
+
+            <p>
+
+                입력 변수: <strong>48개</strong><br><br>
+
+                Input Layer<br>
+                ↓<br>
+                Dense 128 + ReLU<br>
+                ↓<br>
+                Dense 64 + ReLU<br>
+                ↓<br>
+                Dense 32 + ReLU<br>
+                ↓<br>
+                Dense 16 + ReLU<br>
+                ↓<br>
+                Output Layer
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- MODEL PERFORMANCE -->
+
+    <div class="model">
+
+        <h2>
+            📈 모델 성능
+        </h2>
+
+        <div class="model-grid">
+
+            <div class="model-box">
+
+                <div class="label">
+                    분류 정확도
+                </div>
+
+                <div class="model-number">
+                    59.05%
+                </div>
+
+            </div>
+
+
+            <div class="model-box">
+
+                <div class="label">
+                    회귀 MSE
+                </div>
+
+                <div class="model-number">
+                    0.0187
+                </div>
+
+            </div>
+
+
+            <div class="model-box">
+
+                <div class="label">
+                    회귀 MAE
+                </div>
+
+                <div class="model-number">
+                    0.0942
+                </div>
+
+            </div>
+
+
+            <div class="model-box">
+
+                <div class="label">
+                    입력 변수
+                </div>
+
+                <div class="model-number">
+                    48개
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="footer">
+
+        ATCH AI Stock Predictor · TensorFlow / Keras · Python · Scikit-learn · GitHub Pages
+
+    </div>
+
+</div>
+
+
+<!-- CHART SCRIPT -->
+
+<script>
+
+const canvas = document.getElementById("stockChart");
+
+const ctx = canvas.getContext("2d");
+
+
+const labels = [
+    "9/2",
+    "9/3",
+    "9/4",
+    "9/5",
+    "9/8",
+    "9/9",
+    "9/10",
+    "9/11",
+    "9/12",
+    "9/15",
+    "9/16",
+    "9/17",
+    "9/18",
+    "9/19",
+    "9/22",
+    "9/23",
+    "9/24",
+    "9/25",
+    "9/26",
+    "9/29",
+    "9/30",
+    "10/1"
+];
+
+
+const prices = [
+    0.27,
+    0.26,
+    0.25,
+    0.24,
+    0.23,
+    0.22,
+    0.23,
+    0.21,
+    0.22,
+    0.21,
+    0.20,
+    0.21,
+    0.20,
+    0.19,
+    0.20,
+    0.19,
+    0.21,
+    0.20,
+    0.19,
+    0.20,
+    0.20,
+    0.20
+];
+
+
+new Chart(ctx, {
+
+    type: "line",
+
+    data: {
+
+        labels: labels,
+
+        datasets: [{
+
+            label: "ATCH 종가",
+
+            data: prices,
+
+            borderWidth: 3,
+
+            tension: 0.3,
+
+            pointRadius: 3,
+
+            fill: false
+
+        }]
+
+    },
+
+    options: {
+
+        responsive: true,
+
+        maintainAspectRatio: false,
+
+        plugins: {
+
+            legend: {
+
+                display: true
+
+            }
+
+        },
+
+        scales: {
+
+            y: {
+
+                ticks: {
+
+                    callback: function(value) {
+
+                        return "$" + value.toFixed(2);
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+});
+
+</script>
+
+
 </body>
 </html>
