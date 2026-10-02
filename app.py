@@ -1,4 +1,3 @@
-```python
 import gradio as gr
 import pandas as pd
 import numpy as np
@@ -26,11 +25,13 @@ return_scaler = joblib.load(
     "ATCH_return_scaler.pkl"
 )
 
-data = pd.read_csv("ATCH_AI_final_dataset.csv")
+data = pd.read_csv(
+    "ATCH_AI_final_dataset.csv"
+)
 
 
 # ==========================================
-# 2. 모델 입력에 사용하는 48개 변수
+# 2. 모델 입력 변수 48개
 # ==========================================
 
 features = [
@@ -93,10 +94,11 @@ def predict():
 
     try:
 
-        # 날짜순으로 정렬
+        # 데이터 날짜 정렬
         data_sorted = data.copy()
 
         if "Date" in data_sorted.columns:
+
             data_sorted["Date"] = pd.to_datetime(
                 data_sorted["Date"]
             )
@@ -105,10 +107,10 @@ def predict():
                 "Date"
             ).reset_index(drop=True)
 
-        # 가장 최근 데이터 사용
+        # 가장 최근 데이터 선택
         latest = data_sorted.iloc[-1:].copy()
 
-        # 필요한 변수 존재 여부 확인
+        # 필요한 변수 확인
         missing = [
             col
             for col in features
@@ -116,11 +118,13 @@ def predict():
         ]
 
         if missing:
+
             return (
                 "## 오류 발생\n\n"
-                "다음 입력 변수가 데이터에 없습니다:\n\n"
+                "다음 변수가 데이터에 없습니다:\n\n"
                 + "\n".join(
-                    f"- {col}" for col in missing
+                    f"- {col}"
+                    for col in missing
                 )
             )
 
@@ -139,14 +143,15 @@ def predict():
 
             return (
                 "## 오류 발생\n\n"
-                "예측에 필요한 데이터에 결측치가 있습니다.\n\n"
+                "예측 데이터에 결측치가 있습니다:\n\n"
                 + "\n".join(
-                    f"- {col}" for col in missing_values
+                    f"- {col}"
+                    for col in missing_values
                 )
             )
 
         # ======================================
-        # 상승/하락 예측
+        # 상승 확률 예측
         # ======================================
 
         X_direction = direction_scaler.transform(X)
@@ -172,7 +177,7 @@ def predict():
         expected_return = float(expected_return)
 
         # ======================================
-        # 현재 종가
+        # 현재 주가
         # ======================================
 
         current_price = float(
@@ -180,41 +185,49 @@ def predict():
         )
 
         # ======================================
-        # 기준 날짜
+        # 날짜
         # ======================================
 
         if "Date" in latest.columns:
+
             date_text = str(
                 latest["Date"].iloc[0]
             )[:10]
+
         else:
+
             date_text = "최근 데이터"
 
         # ======================================
-        # 상승/하락 판단
+        # 상승 / 하락 판단
         # ======================================
 
         if probability >= 0.5:
+
             direction = "상승 가능성"
+
         else:
+
             direction = "하락 가능성"
 
         # ======================================
-        # 결과 출력
+        # 결과
         # ======================================
 
         result = f"""
 # ATCH AI Stock Predictor
 
-### 📅 기준 날짜
+### 기준 날짜
+
 **{date_text}**
 
-### 💰 최근 종가
+### 최근 종가
+
 **${current_price:.2f}**
 
 ---
 
-## 📈 상승/하락 예측
+## 상승 / 하락 예측
 
 **상승 확률:** {probability * 100:.2f}%
 
@@ -222,17 +235,23 @@ def predict():
 
 ---
 
-## 📊 다음날 수익률 예측
+## 다음날 수익률 예측
 
 **예상 수익률:** {expected_return * 100:.2f}%
 
 ---
 
-### ⚠️ 안내
+### 프로그램 설명
 
-본 결과는 공개 데이터를 이용하여 학습한
-인공신경망 모델의 예측값입니다.
+본 프로그램은 공개된 주가 및 기업 관련 데이터를
+입력값으로 사용하여 인공신경망(ANN)을 학습시키고,
 
+1. 다음 거래일의 상승 가능성
+2. 다음 거래일의 예상 수익률
+
+을 예측합니다.
+
+※ 본 결과는 인공지능 모델의 예측값이며
 실제 주가 변동이나 미래 수익을 보장하지 않습니다.
 """
 
@@ -257,16 +276,15 @@ demo = gr.Interface(
     title="ATCH AI Stock Predictor",
     description=(
         "공개 데이터를 이용한 "
-        "인공신경망 기반 AtlasClear Holdings(ATCH) "
-        "주가 예측 프로그램"
+        "인공신경망 기반 AtlasClear Holdings "
+        "(ATCH) 주가 예측 프로그램"
     ),
     theme=gr.themes.Soft()
 )
 
 
 # ==========================================
-# 5. 프로그램 실행
+# 5. 실행
 # ==========================================
 
 demo.launch()
-```
