@@ -4,10 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>ATCH AI Stock Predictor</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 * {
@@ -18,35 +15,31 @@ body {
     margin: 0;
     font-family: Arial, sans-serif;
     background: #f4f7fb;
-    color: #172033;
+    color: #1a202c;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 40px 20px;
 }
 
 .header {
-    background: linear-gradient(135deg, #071b3a, #123f7a);
+    background: #172554;
     color: white;
-    padding: 45px 20px;
-}
-
-.header-inner {
-    max-width: 1100px;
-    margin: auto;
+    padding: 35px;
+    border-radius: 18px;
+    margin-bottom: 25px;
 }
 
 .header h1 {
     margin: 0 0 10px;
-    font-size: 34px;
+    font-size: 30px;
 }
 
 .header p {
     margin: 0;
     opacity: 0.85;
-    font-size: 16px;
-}
-
-.container {
-    max-width: 1100px;
-    margin: 30px auto;
-    padding: 0 20px;
 }
 
 .cards {
@@ -56,11 +49,15 @@ body {
     margin-bottom: 25px;
 }
 
-.card {
+.card,
+.section {
     background: white;
     border-radius: 16px;
-    padding: 24px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+}
+
+.card {
+    padding: 25px;
 }
 
 .card-title {
@@ -75,39 +72,40 @@ body {
 }
 
 .section {
-    background: white;
-    border-radius: 16px;
-    padding: 28px;
+    padding: 30px;
     margin-bottom: 25px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.06);
 }
 
 .section h2 {
     margin-top: 0;
-    font-size: 21px;
+    color: #172554;
 }
 
 .prediction-box {
     text-align: center;
-    padding: 20px 0;
+    padding: 25px;
+}
+
+.loading {
+    color: #718096;
 }
 
 .probability {
-    font-size: 48px;
+    font-size: 52px;
     font-weight: bold;
-    margin: 10px 0;
+    margin: 15px 0;
 }
 
 .result {
     font-size: 22px;
     font-weight: bold;
-    margin: 10px 0 20px;
+    margin-bottom: 20px;
 }
 
 .bar-background {
     width: 100%;
     height: 18px;
-    background: #e6ebf2;
+    background: #e2e8f0;
     border-radius: 20px;
     overflow: hidden;
 }
@@ -115,47 +113,35 @@ body {
 .bar {
     height: 100%;
     width: 0%;
-    background: linear-gradient(90deg, #3478db, #1b4f9c);
-    border-radius: 20px;
+    background: #2563eb;
     transition: width 0.8s ease;
 }
 
-.loading {
-    color: #718096;
-    text-align: center;
-    padding: 20px;
-}
-
 .error {
-    color: #c53030;
-    background: #fff5f5;
-    border-radius: 10px;
-    padding: 15px;
-    display: none;
+    color: #dc2626;
     margin-top: 15px;
 }
 
 .architecture {
     display: flex;
-    align-items: center;
     justify-content: center;
-    flex-wrap: wrap;
+    align-items: center;
     gap: 10px;
-    margin-top: 20px;
+    flex-wrap: wrap;
+    margin-top: 25px;
 }
 
 .layer {
-    background: #edf4ff;
-    border: 1px solid #c8dcfa;
-    padding: 13px 17px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
     border-radius: 10px;
-    font-size: 14px;
+    padding: 14px;
+    text-align: center;
     font-weight: bold;
 }
 
 .arrow {
-    font-size: 20px;
-    color: #718096;
+    font-size: 22px;
 }
 
 .info-grid {
@@ -165,21 +151,10 @@ body {
 }
 
 .info {
-    background: #f7f9fc;
-    padding: 16px;
+    background: #f8fafc;
+    padding: 18px;
     border-radius: 10px;
-}
-
-.info strong {
-    display: block;
-    margin-bottom: 5px;
-}
-
-.footer {
-    text-align: center;
-    color: #718096;
-    padding: 30px;
-    font-size: 13px;
+    line-height: 1.6;
 }
 
 @media (max-width: 700px) {
@@ -192,7 +167,7 @@ body {
     }
 
     .header h1 {
-        font-size: 27px;
+        font-size: 24px;
     }
 }
 </style>
@@ -201,39 +176,29 @@ body {
 
 <body>
 
-<div class="header">
-    <div class="header-inner">
-        <h1>ATCH AI Stock Predictor</h1>
-        <p>
-            인공신경망(ANN)을 이용한 AtlasClear Holdings 주가 방향 예측 프로그램
-        </p>
-    </div>
-</div>
-
 <div class="container">
 
 ```
+<div class="header">
+    <h1>ATCH AI Stock Predictor</h1>
+    <p>인공신경망(ANN)을 이용한 AtlasClear Holdings 주가 방향 예측 프로그램</p>
+</div>
+
 <div class="cards">
 
     <div class="card">
         <div class="card-title">기준 날짜</div>
-        <div class="card-value" id="date">
-            계산 중...
-        </div>
+        <div class="card-value" id="date">계산 중...</div>
     </div>
 
     <div class="card">
         <div class="card-title">최근 종가</div>
-        <div class="card-value" id="close">
-            계산 중...
-        </div>
+        <div class="card-value" id="close">계산 중...</div>
     </div>
 
     <div class="card">
         <div class="card-title">ANN 상승 확률</div>
-        <div class="card-value" id="probability-card">
-            계산 중...
-        </div>
+        <div class="card-value" id="probability-card">계산 중...</div>
     </div>
 
 </div>
@@ -338,32 +303,32 @@ body {
     <div class="info-grid">
 
         <div class="info">
-            <strong>모델 종류</strong>
+            <strong>모델 종류</strong><br>
             Binary Classification ANN
         </div>
 
         <div class="info">
-            <strong>입력 변수</strong>
+            <strong>입력 변수</strong><br>
             48개
         </div>
 
         <div class="info">
-            <strong>출력값</strong>
+            <strong>출력값</strong><br>
             다음 거래일 상승 확률
         </div>
 
         <div class="info">
-            <strong>데이터 분할</strong>
+            <strong>데이터 분할</strong><br>
             Train 70% / Validation 15% / Test 15%
         </div>
 
         <div class="info">
-            <strong>활성화 함수</strong>
+            <strong>활성화 함수</strong><br>
             ReLU / Sigmoid
         </div>
 
         <div class="info">
-            <strong>테스트 정확도</strong>
+            <strong>테스트 정확도</strong><br>
             약 59.05%
         </div>
 
@@ -379,42 +344,42 @@ body {
     <div class="info-grid">
 
         <div class="info">
-            <strong>주가 데이터</strong>
+            <strong>주가 데이터</strong><br>
             Open, High, Low, Close
         </div>
 
         <div class="info">
-            <strong>거래량 데이터</strong>
+            <strong>거래량 데이터</strong><br>
             Volume, Volume MA20, Volume Change
         </div>
 
         <div class="info">
-            <strong>기술적 지표</strong>
+            <strong>기술적 지표</strong><br>
             MA5, MA20, MA60, RSI14, Volatility
         </div>
 
         <div class="info">
-            <strong>시장 지표</strong>
+            <strong>시장 지표</strong><br>
             SPY Return, QQQ Return
         </div>
 
         <div class="info">
-            <strong>SEC 공시 데이터</strong>
+            <strong>SEC 공시 데이터</strong><br>
             8-K, 10-Q, 10-K, S-1, S-3, DEF 14A
         </div>
 
         <div class="info">
-            <strong>재무 데이터</strong>
+            <strong>재무 데이터</strong><br>
             Revenue, Net Income, Assets, Liabilities 등
         </div>
 
         <div class="info">
-            <strong>공매도 데이터</strong>
+            <strong>공매도 데이터</strong><br>
             Short Interest, Short Volume 등
         </div>
 
         <div class="info">
-            <strong>실적 데이터</strong>
+            <strong>실적 데이터</strong><br>
             Earnings 관련 변수
         </div>
 
@@ -425,19 +390,20 @@ body {
 
 </div>
 
-<div class="footer">
-    ATCH AI Stock Predictor · Public Data + Artificial Neural Network
-</div>
-
 <script>
 
-/* =========================================================
+/* ================================
    JSON 파일 불러오기
-========================================================= */
+================================ */
 
 async function loadJSON(path) {
 
-    const response = await fetch(path + "?v=" + Date.now());
+    const response = await fetch(
+        path + "?v=" + Date.now(),
+        {
+            cache: "no-store"
+        }
+    );
 
     if (!response.ok) {
         throw new Error(
@@ -450,9 +416,9 @@ async function loadJSON(path) {
 }
 
 
-/* =========================================================
+/* ================================
    활성화 함수
-========================================================= */
+================================ */
 
 function relu(x) {
 
@@ -480,19 +446,27 @@ function sigmoid(x) {
 }
 
 
-/* =========================================================
-   Dense layer
-========================================================= */
+/* ================================
+   Dense Layer
+================================ */
 
 function dense(input, layer, activation) {
 
     const output = new Array(layer.bias.length);
 
-    for (let j = 0; j < layer.bias.length; j++) {
+    for (
+        let j = 0;
+        j < layer.bias.length;
+        j++
+    ) {
 
         let sum = layer.bias[j];
 
-        for (let i = 0; i < input.length; i++) {
+        for (
+            let i = 0;
+            i < input.length;
+            i++
+        ) {
 
             sum +=
                 input[i] *
@@ -500,15 +474,10 @@ function dense(input, layer, activation) {
 
         }
 
-        if (activation) {
-
-            output[j] = activation(sum);
-
-        } else {
-
-            output[j] = sum;
-
-        }
+        output[j] =
+            activation
+                ? activation(sum)
+                : sum;
 
     }
 
@@ -517,17 +486,15 @@ function dense(input, layer, activation) {
 }
 
 
-/* =========================================================
-   ANN 예측
-========================================================= */
+/* ================================
+   ANN 실행
+================================ */
 
 async function runANN() {
 
     try {
 
-        /* -----------------------------------------------
-           GitHub JSON 파일
-        ------------------------------------------------ */
+        /* JSON 파일 3개 불러오기 */
 
         const data =
             await loadJSON("latest_data.json");
@@ -539,9 +506,7 @@ async function runANN() {
             await loadJSON("direction_scaler.json");
 
 
-        /* -----------------------------------------------
-           입력 데이터 확인
-        ------------------------------------------------ */
+        /* 입력 데이터 확인 */
 
         if (!data.features) {
 
@@ -555,28 +520,42 @@ async function runANN() {
         if (data.features.length !== 48) {
 
             throw new Error(
-                "Feature 개수가 48개가 아닙니다. 현재: "
-                + data.features.length
+                "Feature 개수가 48개가 아닙니다. 현재: " +
+                data.features.length
             );
 
         }
 
 
-        /* -----------------------------------------------
+        if (
+            scaler.mean.length !== 48 ||
+            scaler.scale.length !== 48
+        ) {
+
+            throw new Error(
+                "Scaler의 변수 개수가 48개가 아닙니다."
+            );
+
+        }
+
+
+        /* ================================
            StandardScaler
-           
-           Python StandardScaler와 동일:
-           
-           X_scaled =
-           (X - mean) / scale
-        ------------------------------------------------ */
+        ================================= */
 
         let x = [];
 
-        for (let i = 0; i < 48; i++) {
+        for (
+            let i = 0;
+            i < 48;
+            i++
+        ) {
 
             let value =
                 Number(data.features[i]);
+
+
+            /* NaN / Infinity 처리 */
 
             if (!Number.isFinite(value)) {
 
@@ -584,157 +563,150 @@ async function runANN() {
 
             }
 
+
             const scaled =
-                (value - scaler.mean[i])
-                / scaler.scale[i];
+                (
+                    value -
+                    scaler.mean[i]
+                ) /
+                scaler.scale[i];
+
 
             x.push(scaled);
 
         }
 
 
-        /* -----------------------------------------------
+        /* ================================
            ANN Forward Pass
-        ------------------------------------------------ */
+        ================================= */
 
-        // Dense 128 + ReLU
-        x = dense(
-            x,
-            weights[0],
-            relu
-        );
-
-
-        // Dense 64 + ReLU
-        x = dense(
-            x,
-            weights[1],
-            relu
-        );
+        x =
+            dense(
+                x,
+                weights[0],
+                relu
+            );
 
 
-        // Dense 32 + ReLU
-        x = dense(
-            x,
-            weights[2],
-            relu
-        );
+        x =
+            dense(
+                x,
+                weights[1],
+                relu
+            );
 
 
-        // Dense 16 + ReLU
-        x = dense(
-            x,
-            weights[3],
-            relu
-        );
+        x =
+            dense(
+                x,
+                weights[2],
+                relu
+            );
 
 
-        // Dense 1 + Sigmoid
-        x = dense(
-            x,
-            weights[4],
-            sigmoid
-        );
+        x =
+            dense(
+                x,
+                weights[3],
+                relu
+            );
 
 
-        /* -----------------------------------------------
-           최종 확률
-        ------------------------------------------------ */
+        x =
+            dense(
+                x,
+                weights[4],
+                sigmoid
+            );
+
+
+        /* 최종 확률 */
 
         const probability =
             x[0];
+
 
         const percent =
             probability * 100;
 
 
-        /* -----------------------------------------------
-           화면 표시
-        ------------------------------------------------ */
+        /* ================================
+           화면 출력
+        ================================= */
 
-        document.getElementById("date")
-            .textContent =
+        document.getElementById(
+            "date"
+        ).textContent =
             data.date;
 
 
-        document.getElementById("close")
-            .textContent =
+        document.getElementById(
+            "close"
+        ).textContent =
             "$" +
             Number(data.close)
                 .toFixed(3);
 
 
-        document.getElementById("probability-card")
-            .textContent =
-            percent.toFixed(2) +
-            "%";
+        document.getElementById(
+            "probability-card"
+        ).textContent =
+            percent.toFixed(2) + "%";
 
 
-        document.getElementById("probability")
-            .textContent =
-            percent.toFixed(2) +
-            "%";
+        document.getElementById(
+            "probability"
+        ).textContent =
+            percent.toFixed(2) + "%";
+
+
+        document.getElementById(
+            "probability-bar"
+        ).style.width =
+            Math.max(
+                0,
+                Math.min(
+                    100,
+                    percent
+                )
+            ) + "%";
 
 
         if (probability >= 0.5) {
 
-            document.getElementById("result")
-                .textContent =
+            document.getElementById(
+                "result"
+            ).textContent =
                 "상승 가능성";
 
         } else {
 
-            document.getElementById("result")
-                .textContent =
+            document.getElementById(
+                "result"
+            ).textContent =
                 "하락 가능성";
 
         }
 
 
-        document.getElementById("probability-bar")
-            .style.width =
-            percent + "%";
+        /* 로딩 제거 */
 
-
-        document.getElementById("loading")
-            .style.display =
+        document.getElementById(
+            "loading"
+        ).style.display =
             "none";
 
 
-        document.getElementById("prediction-content")
-            .style.display =
+        document.getElementById(
+            "prediction-content"
+        ).style.display =
             "block";
 
 
-        /* -----------------------------------------------
-           개발자 콘솔 출력
-        ------------------------------------------------ */
-
         console.log(
-            "===================================="
-        );
-
-        console.log(
-            "ATCH ANN 실제 브라우저 계산"
-        );
-
-        console.log(
-            "기준 날짜:",
-            data.date
-        );
-
-        console.log(
-            "종가:",
-            data.close
-        );
-
-        console.log(
-            "상승 확률:",
-            percent + "%"
-        );
-
-        console.log(
-            "===================================="
+            "ANN probability:",
+            probability
         );
 
 
@@ -743,21 +715,16 @@ async function runANN() {
         console.error(error);
 
 
-        document.getElementById("loading")
-            .style.display =
+        document.getElementById(
+            "loading"
+        ).style.display =
             "none";
 
 
-        const errorBox =
-            document.getElementById("error");
-
-
-        errorBox.style.display =
-            "block";
-
-
-        errorBox.textContent =
-            "ANN 모델 실행 오류: " +
+        document.getElementById(
+            "error"
+        ).textContent =
+            "오류: " +
             error.message;
 
     }
@@ -765,9 +732,9 @@ async function runANN() {
 }
 
 
-/* =========================================================
-   프로그램 실행
-========================================================= */
+/* ================================
+   프로그램 시작
+================================ */
 
 runANN();
 
