@@ -4,35 +4,13 @@ import numpy as np
 import tensorflow as tf
 import joblib
 
+direction_model = tf.keras.models.load_model("ATCH_direction_model.keras")
+return_model = tf.keras.models.load_model("ATCH_return_model.keras")
 
-# ==========================================
-# 1. 모델 및 데이터 불러오기
-# ==========================================
+direction_scaler = joblib.load("ATCH_direction_scaler.pkl")
+return_scaler = joblib.load("ATCH_return_scaler.pkl")
 
-direction_model = tf.keras.models.load_model(
-    "ATCH_direction_model.keras"
-)
-
-return_model = tf.keras.models.load_model(
-    "ATCH_return_model.keras"
-)
-
-direction_scaler = joblib.load(
-    "ATCH_direction_scaler.pkl"
-)
-
-return_scaler = joblib.load(
-    "ATCH_return_scaler.pkl"
-)
-
-data = pd.read_csv(
-    "ATCH_AI_final_dataset.csv"
-)
-
-
-# ==========================================
-# 2. 모델 입력 변수 48개
-# ==========================================
+data = pd.read_csv("ATCH_AI_final_dataset.csv")
 
 features = [
     "Open",
@@ -86,19 +64,12 @@ features = [
 ]
 
 
-# ==========================================
-# 3. 예측 함수
-# ==========================================
-
 def predict():
 
     try:
-
-        # 데이터 날짜 정렬
         data_sorted = data.copy()
 
         if "Date" in data_sorted.columns:
-
             data_sorted["Date"] = pd.to_datetime(
                 data_sorted["Date"]
             )
@@ -107,10 +78,8 @@ def predict():
                 "Date"
             ).reset_index(drop=True)
 
-        # 가장 최근 데이터 선택
         latest = data_sorted.iloc[-1:].copy()
 
-        # 필요한 변수 확인
         missing = [
             col
             for col in features
@@ -118,23 +87,19 @@ def predict():
         ]
 
         if missing:
-
             return (
                 "## 오류 발생\n\n"
                 "다음 변수가 데이터에 없습니다:\n\n"
                 + "\n".join(
-                    f"- {col}"
-                    for col in missing
+                    f"- {col}" for col in missing
                 )
             )
 
-        # 숫자형으로 변환
         X = latest[features].apply(
             pd.to_numeric,
             errors="coerce"
         )
 
-        # 결측치 확인
         if X.isna().any().any():
 
             missing_values = X.columns[
@@ -145,14 +110,9 @@ def predict():
                 "## 오류 발생\n\n"
                 "예측 데이터에 결측치가 있습니다:\n\n"
                 + "\n".join(
-                    f"- {col}"
-                    for col in missing_values
+                    f"- {col}" for col in missing_values
                 )
             )
-
-        # ======================================
-        # 상승 확률 예측
-        # ======================================
 
         X_direction = direction_scaler.transform(X)
 
@@ -163,10 +123,6 @@ def predict():
 
         probability = float(probability)
 
-        # ======================================
-        # 다음날 수익률 예측
-        # ======================================
-
         X_return = return_scaler.transform(X)
 
         expected_return = return_model.predict(
@@ -176,43 +132,21 @@ def predict():
 
         expected_return = float(expected_return)
 
-        # ======================================
-        # 현재 주가
-        # ======================================
-
         current_price = float(
             latest["Close"].iloc[0]
         )
 
-        # ======================================
-        # 날짜
-        # ======================================
-
         if "Date" in latest.columns:
-
             date_text = str(
                 latest["Date"].iloc[0]
             )[:10]
-
         else:
-
             date_text = "최근 데이터"
 
-        # ======================================
-        # 상승 / 하락 판단
-        # ======================================
-
         if probability >= 0.5:
-
             direction = "상승 가능성"
-
         else:
-
             direction = "하락 가능성"
-
-        # ======================================
-        # 결과
-        # ======================================
 
         result = f"""
 # ATCH AI Stock Predictor
@@ -265,10 +199,6 @@ def predict():
         )
 
 
-# ==========================================
-# 4. Gradio 인터페이스
-# ==========================================
-
 demo = gr.Interface(
     fn=predict,
     inputs=[],
@@ -281,10 +211,5 @@ demo = gr.Interface(
     ),
     theme=gr.themes.Soft()
 )
-
-
-# ==========================================
-# 5. 실행
-# ==========================================
 
 demo.launch()
